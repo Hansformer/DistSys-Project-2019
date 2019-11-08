@@ -3,9 +3,11 @@ This will be the central repo for all Distributed Systems assignments
 Tasks: 
 - logging
 - db = textfile: $chatroomname.txt only on server side (ronni)
+- client-server-client synchronization, send messages in the order server receives them 
 
 
-when client connects to server: 
-- server sends list of cat rooms 
-- send all messages
- 
+When a new client connects to server: 
+- Server sends list of chat rooms
+- Client selects which room to join / create a new chat room and join it
+- Send message history from chat room if it exists
+- Synchronize new messages to all clients message by message
