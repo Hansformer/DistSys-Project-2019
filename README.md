@@ -11,3 +11,20 @@ When a new client connects to server:
 - Client selects which room to join / create a new chat room and join it
 - Send message history from chat room if it exists
 - Synchronize new messages to all clients message by message
+
+# Development
+`cd [assignment_name]`
+
+Install virtualenv to `./venv/`:
+
+`python3 -m venv ./venv`
+
+Activate virtualenv:
+
+`source ./venv/bin/activate`
+
+
+Install dependencies:
+`pip3 install -r requirements.txt`
+
+To deactivate venv, run `deactivate`
