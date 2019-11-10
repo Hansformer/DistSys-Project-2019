@@ -4,16 +4,43 @@
 
 import asyncio
 import websockets
+import threading
 
-async def hello():
-    uri = "ws://localhost:8765"
-    async with websockets.connect(uri) as websocket:
-        name = input("What's your name? ")
+async def getNewMessages(socket):
 
-        await websocket.send(name)
-        print(f"> {name}")
+    while(True):
+        message = await socket.recv()
+        print(message)
+        if(message == "Goodbye Client"):
+            break
+    
+    return
 
-        greeting = await websocket.recv()
-        print(f"< {greeting}")
+async def sendNewMessages(socket):
 
-asyncio.get_event_loop().run_until_complete(hello())
+    while(True):
+        message = input("Next Message: ")
+        if message == "stop":
+            break                
+        await socket.send(message)
+    
+    return
+
+async def chat():
+
+    try: 
+        uri = "ws://localhost:8765"
+        async with websockets.connect(uri) as websocket:
+            
+            readerThread = threading.Thread(target=getNewMessages,args=[websocket])
+            senderThread = threading.Thread(target=sendNewMessages,args=[websocket])
+            
+            senderThread.join()
+            readerThread.join()
+            
+    except websockets.exceptions.ConnectionClosedError: 
+        # TODO: log this 
+        print("Unfortenataly we lost connection to Server") 
+
+
+asyncio.get_event_loop().run_until_complete(chat())
