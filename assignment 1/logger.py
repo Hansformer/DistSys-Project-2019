@@ -2,7 +2,7 @@
 
 import datetime
 
-class Logging:
+class Logger:
 
 	def __init__(self, logpath, loglevel):
 		self.loglevel = loglevel
