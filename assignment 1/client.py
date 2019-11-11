@@ -4,40 +4,50 @@
 
 import asyncio
 import websockets
-import threading
+
 
 async def getNewMessages(socket):
 
-    while(True):
-        message = await socket.recv()
+    async for message in socket:
         print(message)
         if(message == "Goodbye Client"):
             break
-    
-    return
+        
+
 
 async def sendNewMessages(socket):
 
     while(True):
+        # read message from CLI
         message = input("Next Message: ")
         if message == "stop":
             break                
         await socket.send(message)
-    
-    return
+        # tiny sleep so the other corotines can do their thing
+        await asyncio.sleep(0.01)
 
 async def chat():
 
     try: 
         uri = "ws://localhost:8765"
+        # connect to server
         async with websockets.connect(uri) as websocket:
-            
-            readerThread = threading.Thread(target=getNewMessages,args=[websocket])
-            senderThread = threading.Thread(target=sendNewMessages,args=[websocket])
-            
-            senderThread.join()
-            readerThread.join()
-            
+            # corotine for recieving messages from server
+            task1 = asyncio.ensure_future(
+                getNewMessages(websocket)
+            )
+            # corotine for recieving messages from server
+            task2 = asyncio.ensure_future(
+                sendNewMessages(websocket)
+            )
+            # start corotines
+            done, pending = await asyncio.wait(
+                [task1, task2],
+                return_when=asyncio.FIRST_COMPLETED
+            )
+            for task in pending:
+                task.cancel()
+
     except websockets.exceptions.ConnectionClosedError: 
         # TODO: log this 
         print("Unfortenataly we lost connection to Server") 
