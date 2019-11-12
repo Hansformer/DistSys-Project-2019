@@ -7,3 +7,6 @@ CLIENTLOG = "./logs/client.txt"
 ADDR = "127.0.0.1"
 PORT = 8765
 URI = "ws://localhost:8765"
+
+# chatrooms
+CHAT = "./chatrooms/"
