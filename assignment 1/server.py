@@ -34,12 +34,12 @@ async def handleInit(socket):
 
 async def handler(websocket, path):
 
-    init_task = asyncio.ensure_future(
+    init_task = asyncio.create_task(
         handleInit(websocket)
     )
 
 
-    # task1 = asyncio.ensure_future(
+    # task1 = asyncio.create_task(
     #     handleIncMessage(websocket)
     # )
 
