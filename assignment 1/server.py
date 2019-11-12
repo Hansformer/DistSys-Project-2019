@@ -13,6 +13,7 @@ def createDictforRooms():
     return d
 
 d = createDictforRooms()
+has_room = {}
 
 def getCurrentRoom(websocket):
     for room in d:
@@ -20,34 +21,36 @@ def getCurrentRoom(websocket):
             return room
     return ''
 
-async def handleIncMessage(socket):
-    current_room = getCurrentRoom(socket)
-    async for message in socket:
-        for client in d[current_room]:
-            await client.send(message)
+async def handleMessage(socket):
+    while True:
+        msg = await socket.recv()
+        if socket in has_room:
+            if has_room[socket] == True:
+                current_room = getCurrentRoom(socket)
+                for client in d[current_room]:
+                        await client.send(msg)
+                        print(str(socket), 'sent message: "', msg, '"')
 
-async def handleInit(socket):
-    async for roomname in socket:
-        if roomname in d:
-            d[roomname].add(socket)
-            print(d)
+            else:
+                if msg in d.keys():
+                    d[msg].add(socket)
+                    has_room[socket] = True
+                    print("Client", str(socket), "connected to room", msg)
+
 
 async def handler(websocket, path):
 
-    init_task = asyncio.ensure_future(
-        handleInit(websocket)
+    await websocket.send(str(d.keys()))
+    has_room[websocket] = False
+
+    task = asyncio.ensure_future(
+        handleMessage(websocket)
     )
 
-
-    # task1 = asyncio.ensure_future(
-    #     handleIncMessage(websocket)
-    # )
-
     try:
-
+        current_room = getCurrentRoom(websocket)
         done, pending = await asyncio.wait(
-            [init_task],
-            return_when=asyncio.FIRST_COMPLETED
+                [task]
         )
 
         for task in pending:
@@ -57,6 +60,7 @@ async def handler(websocket, path):
         current_room = getCurrentRoom(websocket)
         if current_room != '':
             d[current_room].remove(websocket)
+            del has_room[websocket]
         print(d)
 
 start_server = websockets.serve(handler, "localhost", 8765)

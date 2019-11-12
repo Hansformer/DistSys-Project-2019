@@ -12,7 +12,7 @@ async def getNewMessages(socket):
         print(message)
         if(message == "Goodbye Client"):
             break
-        
+
 
 
 async def sendNewMessages(socket):
@@ -21,14 +21,14 @@ async def sendNewMessages(socket):
         # read message from CLI
         message = input("Next Message: ")
         if message == "stop":
-            break                
+            break
         await socket.send(message)
         # tiny sleep so the other corotines can do their thing
         await asyncio.sleep(0.01)
 
 async def chat():
 
-    try: 
+    try:
         uri = "ws://localhost:8765"
         # connect to server
         async with websockets.connect(uri) as websocket:
@@ -48,9 +48,9 @@ async def chat():
             for task in pending:
                 task.cancel()
 
-    except websockets.exceptions.ConnectionClosedError: 
-        # TODO: log this 
-        print("Unfortenataly we lost connection to Server") 
+    except websockets.exceptions.ConnectionClosedError:
+        # TODO: log this
+        print("Unfortenataly we lost connection to Server")
 
 
 asyncio.get_event_loop().run_until_complete(chat())
