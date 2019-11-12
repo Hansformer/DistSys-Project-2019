@@ -1,21 +1,38 @@
 #!/usr/bin/env python
 
-# WS server example
+# WS server example that synchronizes state across clients
 
 import asyncio
+import json
 import websockets
 
-async def hello(websocket, path):
-    while(True):
-        name = await websocket.recv()
-        print(f"< {name}")
+connected = set()
 
-        greeting = f"Hello {name}!"
+async def handleIncMessage(socket):
+    async for message in socket:
+        for client in connected:
+            await client.send(message)
 
-        await websocket.send(greeting)
-        print(f"> {greeting}")
+async def handler(websocket, path):
+    # Register.
+    connected.add(websocket)
+    task1 = asyncio.ensure_future(
+        handleIncMessage(websocket)
+    )
 
-start_server = websockets.serve(hello, "localhost", 8765)
+    try:
+        done, pending = await asyncio.wait(
+            [task1],
+            return_when=asyncio.FIRST_COMPLETED
+        )
+
+        for task in pending:
+            task.cancel()
+
+    finally:
+        connected.remove(websocket)
+
+start_server = websockets.serve(handler, "localhost", 8765)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
