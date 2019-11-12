@@ -1,4 +1,3 @@
-
 import asyncio
 import json
 import websockets
@@ -23,19 +22,22 @@ def getCurrentRoom(websocket):
 
 async def handleMessage(socket):
     while True:
-        msg = await socket.recv()
-        if socket in has_room:
-            if has_room[socket] == True:
-                current_room = getCurrentRoom(socket)
-                for client in d[current_room]:
-                        await client.send(msg)
-                        print(str(socket), 'sent message: "', msg, '"')
+        try:
+            msg = await socket.recv()
+            if socket in has_room:
+                if has_room[socket] == True:
+                    current_room = getCurrentRoom(socket)
+                    for client in d[current_room]:
+                            await client.send(msg)
+                            print(str(socket), 'sent message: "', msg, '"')
 
-            else:
-                if msg in d.keys():
-                    d[msg].add(socket)
-                    has_room[socket] = True
-                    print("Client", str(socket), "connected to room", msg)
+                else:
+                    if msg in d.keys():
+                        d[msg].add(socket)
+                        has_room[socket] = True
+                        print("Client", str(socket), "connected to room", msg)
+        except websockets.ConnectionClosed:
+            pass
 
 
 async def handler(websocket, path):
@@ -55,7 +57,7 @@ async def handler(websocket, path):
 
         for task in pending:
             task.cancel()
-
+            
     finally:
         current_room = getCurrentRoom(websocket)
         if current_room != '':
