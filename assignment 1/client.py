@@ -4,7 +4,7 @@
 
 import asyncio
 import websockets
-
+from aioconsole import ainput
 
 async def getNewMessages(socket):
 
@@ -19,7 +19,7 @@ async def sendNewMessages(socket):
 
     while(True):
         # read message from CLI
-        message = input("Next Message: ")
+        message = await ainput("Next Message: ")
         if message == "stop":
             break
         await socket.send(message)
