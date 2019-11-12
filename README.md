@@ -34,4 +34,14 @@ To deactivate venv, run `deactivate`
 Initially creates a dictionary with room names as keys taken from directory
 */chatrooms/*. The values for each key is a set (initially empty) which is updated
 when a client connects to server and gives a room name (for example 'roomA.txt').
-Sets are updated also when a client disconnects.
+Sets are updated also when a client disconnects.  
+
+Steps in connecting to the server from a client:
+1. When client connects server sends list of rooms to client.
+2. Server waits for a response from client to choose a room (for example 'roomA.txt'
+is a valid room).
+3. Server waits for a messages from a client to send to every client in the same room.
+4. Repeat 3.
+
+Note that there is yet no implementation of writing the texts to rooms or sending the
+history of the room to clients. 

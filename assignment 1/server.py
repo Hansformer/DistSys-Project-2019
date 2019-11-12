@@ -61,7 +61,7 @@ async def handler(websocket, path):
         if current_room != '':
             d[current_room].remove(websocket)
             del has_room[websocket]
-        print(d)
+            print("Client", websocket, "left the room", current_room)
 
 start_server = websockets.serve(handler, "localhost", 8765)
 
