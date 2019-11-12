@@ -32,6 +32,12 @@ async def chat():
         uri = "ws://localhost:8765"
         # connect to server
         async with websockets.connect(uri) as websocket:
+            # getting chatrooms from server
+            s = await websocket.recv()
+            # print chatrooms linewise
+            for room in s[s.find("[") +1 :s.find("]")].split(", "):
+                print(room)
+            answer = input("Which of the above chatrooms do you want to enter?")
             # corotine for recieving messages from server
             task1 = asyncio.create_task(
                 getNewMessages(websocket)
