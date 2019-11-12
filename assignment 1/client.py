@@ -33,11 +33,11 @@ async def chat():
         # connect to server
         async with websockets.connect(uri) as websocket:
             # corotine for recieving messages from server
-            task1 = asyncio.ensure_future(
+            task1 = asyncio.create_task(
                 getNewMessages(websocket)
             )
             # corotine for recieving messages from server
-            task2 = asyncio.ensure_future(
+            task2 = asyncio.create_task(
                 sendNewMessages(websocket)
             )
             # start corotines
