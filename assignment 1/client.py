@@ -34,10 +34,23 @@ async def chat():
         async with websockets.connect(uri) as websocket:
             # getting chatrooms from server
             s = await websocket.recv()
+            
+            chatrooms = s[s.find("[") +1 :s.find("]")].split(", ")
+            
             # print chatrooms linewise
-            for room in s[s.find("[") +1 :s.find("]")].split(", "):
+            for room in chatrooms:
                 print(room)
-            answer = input("Which of the above chatrooms do you want to enter?")
+            
+            answer = input("Which of the above chatrooms do you want to enter? ")
+            
+            if "'" + answer + "'" in chatrooms:
+                await websocket.send(answer)
+            else:
+                # break if there is no such chatroom
+                print(answer)
+                print("There is no Chatroom called like that")
+                return
+
             # corotine for recieving messages from server
             task1 = asyncio.create_task(
                 getNewMessages(websocket)
