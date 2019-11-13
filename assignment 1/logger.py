@@ -25,15 +25,18 @@ class Logger:
 
 	def logError(self, msg):
 		if self.loglevel > 0:
-			self.logfile.write(str(datetime.datetime.now()) + " - " + msg + '\n')
+			self.logfile.write(str(datetime.datetime.now()) + " - ERROR: " + msg + '\n')
+			self.logfile.flush()
 
 	def logMsg(self, msg):
 		if self.loglevel > 1:
 			self.logfile.write(str(datetime.datetime.now()) + " - " + msg + '\n')
+			self.logfile.flush()
 
 	def logDebug(self, msg):
 		if self.loglevel > 2:
 			self.logfile.write(str(datetime.datetime.now()) + " - " + msg + '\n')
+			self.logfile.flush()
 
 	def closeFile(self):
 		self.logfile.close()

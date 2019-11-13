@@ -4,6 +4,10 @@ import websockets
 import os
 import config
 
+from logger import Logger
+
+logger = Logger(config.SERVERLOG, config.LOGLEVEL)
+
 def createDictforRooms():
     rooms = [f for f in os.listdir(config.CHAT) if os.path.isfile(os.path.join(config.CHAT, f))]
     d = dict()
@@ -21,9 +25,11 @@ def getCurrentRoom(websocket):
     return ''
 
 async def handleMessage(socket):
+    logger.logDebug("handleMessage(): Entering")
     while True:
         try:
             msg = await socket.recv()
+            logger.logDebug("Server received message: \"{}\"".format(msg))
             if socket in has_room:
                 if has_room[socket] == True:
                     current_room = getCurrentRoom(socket)
@@ -35,13 +41,15 @@ async def handleMessage(socket):
                     if msg in d.keys():
                         d[msg].add(socket)
                         has_room[socket] = True
+                        logger.logMsg("Client {} connected connected to room: {}".format(str(socket), msg))
                         print("Client", str(socket), "connected to room", msg)
         except websockets.ConnectionClosed:
             pass
-
+    logger.logDebug("handleMessage(): Exiting")
 
 async def handler(websocket, path):
 
+    logger.logDebug("handler(): Entering")
     await websocket.send(str(d.keys()))
     has_room[websocket] = False
 
@@ -64,8 +72,10 @@ async def handler(websocket, path):
             d[current_room].remove(websocket)
             del has_room[websocket]
             print("Client", websocket, "left the room", current_room)
+            logger.logMsg("Client {} has left {}.".format(str(websocket), current_room))
 
 start_server = websockets.serve(handler, "localhost", 8765)
+logger.logMsg("Server started, listening on 'localhost:8765'")
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

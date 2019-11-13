@@ -3,12 +3,19 @@
 # WS client example
 
 import asyncio
+import datetime
 import websockets
 from aioconsole import ainput
+import config
+
+from logger import Logger
+
+logger = Logger("./logs/client-{}.txt".format(datetime.datetime.now()), config.LOGLEVEL)
 
 async def getNewMessages(socket):
 
     async for message in socket:
+        logger.logDebug("New message: {}".format(message))
         print(message)
         if(message == "Goodbye Client"):
             break
@@ -21,8 +28,10 @@ async def sendNewMessages(socket):
         # read message from CLI
         message = await ainput("Next Message: ")
         if message == "stop":
+            logger.logMsg("Stopping client.")
             break
         await socket.send(message)
+        logger.logMsg("Sent message: {}".format(message))
         # tiny sleep so the other corotines can do their thing
         await asyncio.sleep(0.01)
 
@@ -32,8 +41,10 @@ async def chat():
         uri = "ws://localhost:8765"
         # connect to server
         async with websockets.connect(uri) as websocket:
+            logger.logMsg("Connected to server: {}".format(uri))
             # getting chatrooms from server
             s = await websocket.recv()
+            logger.logMsg("Received message from server: {}".format(s))
             
             chatrooms = s[s.find("[") +1 :s.find("]")].split(", ")
             
@@ -69,6 +80,7 @@ async def chat():
 
     except websockets.exceptions.ConnectionClosedError:
         # TODO: log this
+        logger.logError("Connection to server lost.")
         print("Unfortenataly we lost connection to Server")
 
 
