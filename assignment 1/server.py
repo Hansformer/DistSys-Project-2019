@@ -21,7 +21,9 @@ def saveMessage(room, msg):
 def getMessageHistory(room):
     # TODO: Ensure that client can't open any other files that the ones in the config.CHAT dir (by using ../ in file path)
     roomFile = open(getPathForChatRoom(room), "rb")
-    return roomFile.read()
+    messages = roomFile.read()
+    roomFile.close()
+    return messages
 
 def createDictforRooms():
     rooms = [f for f in os.listdir(config.CHATROOMS_DIR) if os.path.isfile(getPathForChatRoom(f))]
