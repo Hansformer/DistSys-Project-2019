@@ -8,12 +8,19 @@ from logger import Logger
 
 logger = Logger(config.SERVERLOG, config.LOGLEVEL)
 
+
 def saveMessage(room, msg):
     # TODO: Reuse file pointers
     f = open(config.CHAT + room, "a+")
     f.write(msg + "\r\n");
     f.flush();
     f.close();
+
+def getMessageHistory(room):
+    # TODO: Ensure that client can't open any other files that the ones in the config.CHAT dir (by using ../ in file path)
+    f = open(config.CHAT + room, "rb")
+    return f.read()
+
 def createDictforRooms():
     rooms = [f for f in os.listdir(config.CHAT) if os.path.isfile(os.path.join(config.CHAT, f))]
     d = dict()
@@ -49,7 +56,8 @@ async def handleMessage(socket):
                         d[msg].add(socket)
                         has_room[socket] = True
                         logger.logMsg("Client {} connected connected to room: {}".format(str(socket), msg))
-                        print("Client", str(socket), "connected to room", msg)
+                        messageHistory = getMessageHistory(msg);
+                        await socket.send(messageHistory)
         except websockets.ConnectionClosed:
             pass
     logger.logDebug("handleMessage(): Exiting")
@@ -78,7 +86,6 @@ async def handler(websocket, path):
         if current_room != '':
             d[current_room].remove(websocket)
             del has_room[websocket]
-            print("Client", websocket, "left the room", current_room)
             logger.logMsg("Client {} has left {}.".format(str(websocket), current_room))
 
 start_server = websockets.serve(handler, "localhost", 8765)
