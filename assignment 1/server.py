@@ -13,15 +13,15 @@ def getPathForChatRoom(room):
 
 def saveMessage(room, msg):
     # TODO: Reuse file pointers
-    f = open(getPathForChatRoom(room), "a+")
-    f.write(msg + "\r\n");
-    f.flush();
-    f.close();
+    roomFile = open(getPathForChatRoom(room), "a+")
+    roomFile.write(msg + "\r\n");
+    roomFile.flush();
+    roomFile.close();
 
 def getMessageHistory(room):
     # TODO: Ensure that client can't open any other files that the ones in the config.CHAT dir (by using ../ in file path)
-    f = open(getPathForChatRoom(room), "rb")
-    return f.read()
+    roomFile = open(getPathForChatRoom(room), "rb")
+    return roomFile.read()
 
 def createDictforRooms():
     rooms = [f for f in os.listdir(config.CHATROOMS_DIR) if os.path.isfile(getPathForChatRoom(f))]
