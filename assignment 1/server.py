@@ -30,12 +30,12 @@ def createDictforRooms():
         d[room] = set()
     return d
 
-d = createDictforRooms()
+rooms = createDictforRooms()
 has_room = {}
 
 def getCurrentRoom(websocket):
-    for room in d:
-        if websocket in d[room]:
+    for room in rooms:
+        if websocket in rooms[room]:
             return room
     return ''
 
@@ -48,14 +48,14 @@ async def handleMessage(socket):
             if socket in has_room:
                 if has_room[socket] == True:
                     current_room = getCurrentRoom(socket)
-                    for client in d[current_room]:
+                    for client in rooms[current_room]:
                             await client.send(msg)
                             print(str(socket), 'sent message: "', msg, '"')
                             saveMessage(current_room, msg);
 
                 else:
-                    if msg in d.keys():
-                        d[msg].add(socket)
+                    if msg in rooms.keys():
+                        rooms[msg].add(socket)
                         has_room[socket] = True
                         logger.logMsg("Client {} connected connected to room: {}".format(str(socket), msg))
                         messageHistory = getMessageHistory(msg);
@@ -67,7 +67,7 @@ async def handleMessage(socket):
 async def handler(websocket, path):
 
     logger.logDebug("handler(): Entering")
-    await websocket.send(str(d.keys()))
+    await websocket.send(str(rooms.keys()))
     has_room[websocket] = False
 
     task = asyncio.ensure_future(
@@ -86,7 +86,7 @@ async def handler(websocket, path):
     finally:
         current_room = getCurrentRoom(websocket)
         if current_room != '':
-            d[current_room].remove(websocket)
+            rooms[current_room].remove(websocket)
             del has_room[websocket]
             logger.logMsg("Client {} has left {}.".format(str(websocket), current_room))
 
