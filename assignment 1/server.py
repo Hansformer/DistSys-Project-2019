@@ -8,6 +8,12 @@ from logger import Logger
 
 logger = Logger(config.SERVERLOG, config.LOGLEVEL)
 
+def saveMessage(room, msg):
+    # TODO: Reuse file pointers
+    f = open(config.CHAT + room, "a+")
+    f.write(msg + "\r\n");
+    f.flush();
+    f.close();
 def createDictforRooms():
     rooms = [f for f in os.listdir(config.CHAT) if os.path.isfile(os.path.join(config.CHAT, f))]
     d = dict()
@@ -36,6 +42,7 @@ async def handleMessage(socket):
                     for client in d[current_room]:
                             await client.send(msg)
                             print(str(socket), 'sent message: "', msg, '"')
+                            saveMessage(current_room, msg);
 
                 else:
                     if msg in d.keys():
