@@ -16,9 +16,14 @@ async def getNewMessages(socket):
 
     async for message in socket:
         logger.logDebug("New message: {}".format(message))
-        print(message)
-        if(message == "Goodbye Client"):
-            break
+        # Chat history is received as bytes
+        if type(message) is bytes:
+            print(message.decode("utf-8"))
+        else:
+            print(message)
+
+            if(message == "Goodbye Client"):
+                break
 
 
 
