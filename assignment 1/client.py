@@ -14,7 +14,7 @@ logger = Logger("./logs/client-{}.txt".format(datetime.datetime.now()), config.L
 
 async def receiveMessage(socket):
     async for message in socket:
-        logger.logDebug("New message: {}".format(message))
+        logger.logDebug("New message at {}: {}".format(datetime.datetime.now().isoformat(sep=" ", timespec="milliseconds"), message))
 
         # Chat history is received as bytes
         if type(message) is bytes:
