@@ -5,23 +5,9 @@ import config
 
 from logger import Logger
 from messagePersister import getPathForChatRoom, saveMessage, getMessageHistory
+from roomHelper import getCurrentRoom, getRooms
 
 logger = Logger(config.SERVERLOG, config.LOGLEVEL)
-
-def createDictforRooms():
-    rooms = [f for f in os.listdir(config.CHATROOMS_DIR) if os.path.isfile(getPathForChatRoom(f))]
-    d = dict()
-    for room in rooms:
-        d[room] = set()
-    return d
-
-rooms = createDictforRooms()
-
-def getCurrentRoom(websocket):
-    for room in rooms:
-        if websocket in rooms[room]:
-            return room
-    return ''
 
 async def handleMessage(socket):
     logger.logDebug("handleMessage(): Entering")
@@ -33,6 +19,8 @@ async def handleMessage(socket):
             logger.logDebug("Server received message: \"{}\"".format(msg))
 
             current_room = getCurrentRoom(socket)
+
+            rooms = getRooms();
 
             if current_room != '':
                 for client in rooms[current_room]:
@@ -54,6 +42,8 @@ async def handleMessage(socket):
 
 async def handler(websocket, path):
     logger.logDebug("handler(): Entering")
+
+    rooms = getRooms();
 
     await websocket.send(str(rooms.keys()))
 
