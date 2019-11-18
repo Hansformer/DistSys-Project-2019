@@ -4,6 +4,8 @@
 
 import asyncio
 import datetime
+import random
+import sys
 import websockets
 from aioconsole import ainput
 import config
@@ -12,15 +14,32 @@ from logger import Logger
 
 logger = Logger("./logs/client-{}.txt".format(datetime.datetime.now()), config.LOGLEVEL)
 
+async def printIterator(message):
+	length = len(message)
+	chunksize = 1024
+	for i in range(0, length, chunksize):
+		print(message[i:i + chunksize])
+
 async def receiveMessage(socket):
     async for message in socket:
-        logger.logDebug("New message at {}: {}".format(datetime.datetime.now().isoformat(sep=" ", timespec="milliseconds"), message))
 
         # Chat history is received as bytes
         if type(message) is bytes:
-            print(message.decode("utf-8"))
+            logtask = loop.create_task(logger.logMsg("Chat log received."))
+            await asyncio.wait([logtask])
+            if len(message) > 1024:
+                task = loop.create_task(printIterator(message.decode("utf-8")))
+                await asyncio.wait([task])
+            else:
+                print(message.decode("utf-8"))
         else:
-            print(message)
+            logtask = loop.create_task(logger.logMsg("New message received."))
+            await asyncio.wait([logtask])
+            if len(message) > 1024:
+                task = loop.create_task(printIterator(message))
+                await asyncio.wait([task])
+            else:
+                print(message)
 
             if(message == "Goodbye Client"):
                 break
@@ -34,12 +53,22 @@ async def sendMessage(socket):
         message = await ainput("Message to send: ")
 
         if message == "stop":
-            logger.logMsg("Stopping client.")
+            await logger.logMsg("Stopping client.")
             break
 
         await socket.send(message)
 
-        logger.logMsg("Sent message: {}".format(message))
+        await logger.logMsg("Sent message: {}".format(message))
+
+        # Run benchmarking with file
+        if config.BENCHMARK:
+            filep = open("./chatrooms/1MB_crash_test.txt", "r")
+            data = filep.read()
+            filep.close()
+            await logger.logMsg("Starting filesend")
+            for i in range(0,24):
+                await socket.send(data)
+            await logger.logMsg("Ending filesend")
 
         # tiny sleep so the other corotines can do their thing
         await asyncio.sleep(0.01)
@@ -50,10 +79,10 @@ async def chat():
         uri = "ws://localhost:8765"
         # connect to server
         async with websockets.connect(uri) as websocket:
-            logger.logMsg("Connected to server: {}".format(uri))
+            await logger.logMsg("Connected to server: {}".format(uri))
             # getting chatrooms from server
             chatRoomsResponse = await websocket.recv()
-            logger.logMsg("Received message from server: {}".format(chatRoomsResponse))
+            await logger.logMsg("Received message from server: {}".format(chatRoomsResponse))
             
             chatrooms = chatRoomsResponse[chatRoomsResponse.find("[") +1 :chatRoomsResponse.find("]")].split(", ")
             
@@ -88,8 +117,9 @@ async def chat():
                 task.cancel()
 
     except websockets.exceptions.ConnectionClosedError:
-        logger.logError("Connection to server lost.")
+        await logger.logError("Connection to server lost.")
         print("Unfortenataly we lost connection to Server")
 
-
-asyncio.get_event_loop().run_until_complete(chat())
+loop = asyncio.get_event_loop()
+loop.run_until_complete(chat())
+loop.close()

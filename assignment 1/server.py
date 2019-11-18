@@ -10,13 +10,13 @@ from roomHelper import getCurrentRoom, getRooms
 logger = Logger(config.SERVERLOG, config.LOGLEVEL)
 
 async def handleMessage(socket):
-    logger.logDebug("handleMessage(): Entering")
+    await logger.logDebug("handleMessage(): Entering")
 
     while True:
         try:
             msg = await socket.recv()
 
-            logger.logDebug("Server received message: \"{}\"".format(msg))
+            await logger.logDebug("Server received message")
 
             current_room = getCurrentRoom(socket)
 
@@ -25,23 +25,23 @@ async def handleMessage(socket):
             if current_room != '':
                 for client in rooms[current_room]:
                         await client.send(msg)
-                        logger.logMsg("{} sent message: \"{}\"".format(str(socket), msg))
+                        await logger.logMsg("{} sent message".format(str(socket)))
                         saveMessage(current_room, msg);
 
             else:
                 if msg in rooms.keys():
                     rooms[msg].add(socket)
-                    logger.logMsg("Client {} connected connected to room: {}".format(str(socket), msg))
+                    await logger.logMsg("Client {} connected connected to room: {}".format(str(socket), msg))
                     messageHistory = getMessageHistory(msg);
                     await socket.send(messageHistory)
 
         except websockets.ConnectionClosed:
             pass
 
-    logger.logDebug("handleMessage(): Exiting")
+    await logger.logDebug("handleMessage(): Exiting")
 
 async def handler(websocket, path):
-    logger.logDebug("handler(): Entering")
+    await logger.logDebug("handler(): Entering")
 
     rooms = getRooms();
 
@@ -64,7 +64,7 @@ async def handler(websocket, path):
 
         if current_room != '':
             rooms[current_room].remove(websocket)
-            logger.logMsg("Client {} has left {}.".format(str(websocket), current_room))
+            await logger.logMsg("Client {} has left {}.".format(str(websocket), current_room))
 
 start_server = websockets.serve(handler, "localhost", 8765)
 logger.logMsg("Server started, listening on 'localhost:8765'")

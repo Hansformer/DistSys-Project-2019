@@ -23,21 +23,21 @@ class Logger:
 		else:
 			print("Error: Logfile path not specified!")
 
-	def logError(self, msg):
+	async def logError(self, msg):
 		if self.loglevel > 0:
 			logLine = str(datetime.datetime.now()) + " - ERROR: " + msg + '\n'
 			print(logLine)
 			self.logfile.write(logLine)
 			self.logfile.flush()
 
-	def logMsg(self, msg):
+	async def logMsg(self, msg):
 		if self.loglevel > 1:
 			logLine = str(datetime.datetime.now()) + " - " + msg + '\n'
 			print(logLine)
 			self.logfile.write(logLine)
 			self.logfile.flush()
 
-	def logDebug(self, msg):
+	async def logDebug(self, msg):
 		if self.loglevel > 2:
 			logLine = str(datetime.datetime.now()) + " - " + msg + '\n'
 			print(logLine)
