@@ -2,7 +2,7 @@
 
 ## Task 1
 
-### Lecture 5
+### Lecture 6
 
 #### Exercise 1
 
