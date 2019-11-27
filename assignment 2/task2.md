@@ -18,7 +18,7 @@ If you would use an upper bound, like all humans on this Planet, it wouldn't mak
 (1,0,0,1,1) - (0,0,1,1,2) -> (1,1,0,0,0) (diagonal to the beginning)
 ## Task 2
 
-### Are the nets living
+### Liveness
 
 [reference](https://en.wikipedia.org/wiki/Petri_net#Liveness)
 
@@ -27,5 +27,11 @@ If you would use an upper bound, like all humans on this Planet, it wouldn't mak
 - how did I do this ? check if any transaction had only input arcs
 - is not the case in any of the given nets
 
-### bounded
-- 
+### Boundedness
+
+[reference](https://en.wikipedia.org/wiki/Petri_net#Boundedness)
+
+- Not bounded, because Reachibality Graph is not finite
+- graph is not finite, eg. t3:
+  -  in 1) it is giving the token from s1 to s2 and s4 -> increases number of tokens by 1 and creates new states, endless repeatable
+  -  in 2) and 3) it is giving the token to s1, s4 and s5 -> increases number of tokens by 2 and creates new states, endless repeatable
