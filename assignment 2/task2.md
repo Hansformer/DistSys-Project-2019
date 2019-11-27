@@ -16,9 +16,10 @@ If you would use an upper bound, like all humans on this Planet, it wouldn't mak
 (1,1,0,0,0) - (0,1,1,0,1)  
     |              |  
 (1,0,0,1,1) - (0,0,1,1,2) -> (1,1,0,0,0) (diagonal to the beginning)
+
 ## Task 2
 
-### Liveness
+### Liveness (1)
 
 [reference](https://en.wikipedia.org/wiki/Petri_net#Liveness)
 
@@ -27,7 +28,7 @@ If you would use an upper bound, like all humans on this Planet, it wouldn't mak
 - how did I do this ? check if any transaction had only input arcs
 - is not the case in any of the given nets
 
-### Boundedness
+### Boundedness (2)
 
 [reference](https://en.wikipedia.org/wiki/Petri_net#Boundedness)
 
@@ -35,3 +36,12 @@ If you would use an upper bound, like all humans on this Planet, it wouldn't mak
 - graph is not finite, eg. t3:
   -  in 1) it is giving the token from s1 to s2 and s4 -> increases number of tokens by 1 and creates new states, endless repeatable
   -  in 2) and 3) it is giving the token to s1, s4 and s5 -> increases number of tokens by 2 and creates new states, endless repeatable
+
+### shortest path (3)
+
+1) (1,1,0,0) ->  (1,0,1,1) -> (2,0,1,0)
+   - t2 , t1
+2) (1,1,0,0,1,1,0,0) -> (1,1,0,0,1,0,1,1) -> (1,1,0,1,2,0,1,0) -> (1,0,1,2,2,0,1,0) -> (2,0,1,1,2,0,1,0) -> (3,0,1,0,2,0,1,0)
+   - t4 ,t3 ,t2 , t1, t1
+3) (1,1,0,0,1,1,0,0,1,1,0,0) -> (1,1,0,0,1,1,0,0,1,0,1,1) -> (1,1,0,0,1,1,0,1,2,0,1,0) -> (1,1,0,0,1,0,1,2,2,0,1,0) -> (1,1,0,1,2,0,1,1,2,0,1,0) -> (1,1,0,2,3,0,1,0,2,0,1,0) -> (1,0,1,3,3,0,1,0,2,0,1,0) -> (2,0,1,2,3,0,1,0,2,0,1,0) -> (3,0,1,1,3,0,1,0,2,0,1,0) -> (3,0,1,0,3,0,1,0,2,0,1,0)
+    - t6, t5 ,t4 ,t3, t3 ,t2 , t1, t1, t1
