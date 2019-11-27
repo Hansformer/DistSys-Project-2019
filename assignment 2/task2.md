@@ -49,3 +49,10 @@ If you would use an upper bound, like all humans on this Planet, it wouldn't mak
 ### shortest path for n (4)
 
 - shortest path(n) = if n=1 -> 2, else -> shortest path(n-1) + (n-1) + 2
+
+## Task 3
+
+Assumptions:
+
+- cars turning right don't have an extra traffic light, only the cars turning left comming from vikki
+- either there are now people walking or going by bike or car drivers take care of it
