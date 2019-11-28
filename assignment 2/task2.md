@@ -2,6 +2,13 @@
 
 ## Task 1
 
+- doctors hansformer
+- vendor machine hansformer
+- light niels
+- car assembly niels
+- insurance claims niels (see below)
+- chair whichever niels
+
 ### Lecture 6
 
 #### Exercise 1
