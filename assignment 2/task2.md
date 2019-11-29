@@ -59,7 +59,20 @@ If you would use an upper bound, like all humans on this Planet, it wouldn't mak
 
 ## Task 3
 
-Assumptions:
+### Assumptions:
 
-- cars turning right don't have an extra traffic light, only the cars turning left comming from vikki
-- either there are now people walking or going by bike or car drivers take care of it
+- We don't consider pedestrians in the assignment.
+
+
+### Solution
+
+We have divided the traffic lights in to three different components, which only one can be active at a time:
+1. Main road lights forward (1 in the notation of the petrinet)  
+2. Turning from the main road from the central to Kumpula. (2)
+3. Turning from Kumpula to left towards Viikki and turning right from the mainroad to Kumpula (3).  
+
+The mutex is responsible for deciding which one of these is going to be active after the last one turns from orange to red.
+
+We tried multiple ways to cover the restrains for flow, as for (1) it should be max 10 cars and max 5 cars for (2),(3). One consideration was that, for example for (1), we use multiple tokens to the transition go1 (green->orange) with either timeout or car capacity, this however was really tedious and there were problems handling the tokens later. This was only one of the methods we tried, all of our concepts turned out not working, so we left those out.
+
+But the idea is that for every one of these parts (1),(2) and (3), we have some kind of logic to activate green to orange transition, either when maximum amount of cars is passed or the timeout has activated.
