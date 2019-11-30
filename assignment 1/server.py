@@ -1,57 +1,58 @@
 import asyncio
-import json
 import websockets
 import os
 import config
 
-def createDictforRooms():
-    rooms = [f for f in os.listdir(config.CHAT) if os.path.isfile(os.path.join(config.CHAT, f))]
-    d = dict()
-    for room in rooms:
-        d[room] = set()
-    return d
+from logger import Logger
+from messagePersister import getPathForChatRoom, saveMessage, getMessageHistory
+from roomHelper import getCurrentRoom, getRooms
 
-d = createDictforRooms()
-has_room = {}
-
-def getCurrentRoom(websocket):
-    for room in d:
-        if websocket in d[room]:
-            return room
-    return ''
+logger = Logger(config.SERVERLOG, config.LOGLEVEL)
 
 async def handleMessage(socket):
+    await logger.logDebug("handleMessage(): Entering")
+
     while True:
         try:
             msg = await socket.recv()
-            if socket in has_room:
-                if has_room[socket] == True:
-                    current_room = getCurrentRoom(socket)
-                    for client in d[current_room]:
-                            await client.send(msg)
-                            print(str(socket), 'sent message: "', msg, '"')
 
-                else:
-                    if msg in d.keys():
-                        d[msg].add(socket)
-                        has_room[socket] = True
-                        print("Client", str(socket), "connected to room", msg)
+            await logger.logDebug("Server received message")
+
+            current_room = getCurrentRoom(socket)
+
+            rooms = getRooms();
+
+            if current_room != '':
+                for client in rooms[current_room]:
+                        await client.send(msg)
+                        await logger.logMsg("{} sent message".format(str(socket)))
+                        saveMessage(current_room, msg);
+
+            else:
+                if msg in rooms.keys():
+                    rooms[msg].add(socket)
+                    await logger.logMsg("Client {} connected connected to room: {}".format(str(socket), msg))
+                    messageHistory = getMessageHistory(msg);
+                    await socket.send(messageHistory)
+
         except websockets.ConnectionClosed:
             pass
 
+    await logger.logDebug("handleMessage(): Exiting")
 
 async def handler(websocket, path):
+    await logger.logDebug("handler(): Entering")
 
-    await websocket.send(str(d.keys()))
-    has_room[websocket] = False
+    rooms = getRooms();
+
+    await websocket.send(str(rooms.keys()))
 
     task = asyncio.ensure_future(
         handleMessage(websocket)
     )
 
     try:
-        current_room = getCurrentRoom(websocket)
-        done, pending = await asyncio.wait(
+        _, pending = await asyncio.wait(
                 [task]
         )
 
@@ -60,12 +61,13 @@ async def handler(websocket, path):
             
     finally:
         current_room = getCurrentRoom(websocket)
+
         if current_room != '':
-            d[current_room].remove(websocket)
-            del has_room[websocket]
-            print("Client", websocket, "left the room", current_room)
+            rooms[current_room].remove(websocket)
+            await logger.logMsg("Client {} has left {}.".format(str(websocket), current_room))
 
 start_server = websockets.serve(handler, "localhost", 8765)
+logger.logMsg("Server started, listening on 'localhost:8765'")
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

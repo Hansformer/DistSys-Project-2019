@@ -1,5 +1,32 @@
 # Assignment 1
 
+## Development & usage
+
+Use Python 3.7+
+
+Install virtualenv to `./venv/`:
+
+`python3 -m venv ./venv`
+
+Activate virtualenv:
+
+`source ./venv/bin/activate`
+
+
+Install dependencies:
+
+`pip3 install -r requirements.txt`
+
+after that, you can run the server with
+
+`python3 server.py`
+
+and the client with
+
+`python3 client.py`
+
+To deactivate venv, run `deactivate`
+
 Tasks:
 - logging
 - db = textfile: $chatroomname.txt only on server side (roni)
