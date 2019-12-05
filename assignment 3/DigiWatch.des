@@ -1,12 +1,51 @@
 INITIALIZER:
+    import time
     from Tkinter import *
     from DWatchGUI import DWatchGUI
 
     root = Tk()
-    root.title("A Title")
+    root.title("Digital Watch")
     g = DWatchGUI(root, eventhandler)
 
     eventhandler.start()
 
     root.mainloop()
     exit()
+
+STATECHART:
+    LightOFF [DS]
+    LightON
+    OLDT
+    NEWT
+
+TRANSITION:
+    S: LightOFF
+    N: LightON
+    E: lightOn
+    O: print "set light on"
+       g.setIndiglo()
+
+TRANSITION:
+    S: LightON
+    N: LightOFF
+    E: lightOff
+    O: print "light off"
+       time.sleep(2)
+       g.unsetIndiglo()
+'''
+TRANSITION:
+    S: OLDT
+    N: NEWT
+    E: checkTime()
+    O: print "Second + +"
+       IncreaseTimeByOne()
+       time.sleep(1)
+
+TRANSITION:
+    S: NEWT
+    N: OLDT
+    E: checkTime()
+    O: print "Second++"
+       IncreaseTimeByOne()
+       time.sleep(1)
+'''
