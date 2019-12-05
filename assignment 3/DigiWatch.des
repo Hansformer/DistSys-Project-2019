@@ -2,6 +2,7 @@ INITIALIZER:
     import time
     from Tkinter import *
     from DWatchGUI import DWatchGUI
+    from LowLevelGUI import LowLevelGUI
 
     root = Tk()
     root.title("Digital Watch")
@@ -13,13 +14,13 @@ INITIALIZER:
     exit()
 
 STATECHART:
-    LightOFF [DS]
+    START [DS]
+    LightOFF
     LightON
-    OLDT
-    NEWT
+    TIMER
 
 TRANSITION:
-    S: LightOFF
+    S: START
     N: LightON
     E: lightOn
     O: print "set light on"
@@ -32,20 +33,16 @@ TRANSITION:
     O: print "light off"
        time.sleep(2)
        g.unsetIndiglo()
-'''
-TRANSITION:
-    S: OLDT
-    N: NEWT
-    E: checkTime()
-    O: print "Second + +"
-       IncreaseTimeByOne()
-       time.sleep(1)
 
 TRANSITION:
-    S: NEWT
-    N: OLDT
-    E: checkTime()
-    O: print "Second++"
-       IncreaseTimeByOne()
-       time.sleep(1)
-'''
+    S: START
+    N: TIMER
+    T: 1 [OTT]
+    O: print "BEGIN TIMER"
+
+TRANSITION:
+    S: TIMER
+    N: TIMER
+    T: 1
+    O: print "Time Tick"
+       g.increaseTimeByOne()
