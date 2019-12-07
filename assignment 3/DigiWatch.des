@@ -15,12 +15,25 @@ INITIALIZER:
 
 STATECHART:
     START [DS]
+
     LightOFF
     LightON
-    TIMER
+    LightTimeout
+
+    Timer
+    EditTime
+    EditDone
+
+    Alarm
+    EditAlarm
+
+    Chrono
+    StartChrono
+    IncreaseChrono
+
 
 TRANSITION:
-    S: START
+    S: Timer
     N: LightON
     E: lightOn
     O: print "set light on"
@@ -30,19 +43,78 @@ TRANSITION:
     S: LightON
     N: LightOFF
     E: lightOff
-    O: print "light off"
-       time.sleep(2)
-       g.unsetIndiglo()
+    O: print "Timeout for turning light off"
+
+TRANSITION:
+    S: LightOFF
+    N: Timer
+    T: 2
+    O: g.unsetIndiglo()
+       print "Light turned off"
 
 TRANSITION:
     S: START
-    N: TIMER
+    N: Timer
     T: 1 [OTT]
-    O: print "BEGIN TIMER"
+    O: print "BEGIN Timer"
 
 TRANSITION:
-    S: TIMER
-    N: TIMER
+    S: Timer
+    N: Timer
     T: 1
     O: print "Time Tick"
        g.increaseTimeByOne()
+
+TRANSITION:
+    S: Timer
+    N: EditTime
+    E: editTime
+    O: g.startSelection()
+       print "Start editing time"
+
+TRANSITION:
+    S: EditTime
+    N: EditTime
+    E: changeMode
+    O: g.selectNext()
+       print "Selecting next"
+
+TRANSITION:
+    S: EditTime
+    N: EditTime
+    E: increase
+    O: g.increaseSelection()
+       print "Increased Selection"
+
+# FIXME
+TRANSITION:
+    S: EditTime
+    N: EditDone
+    E: finishEdit
+    O: print "Time saved!"
+
+# FIXME
+TRANSITION:
+    S: EditDone
+    N: Timer
+    O: print "Back to time display"
+       g.refreshTimeDisplay()
+
+
+TRANSITION:
+    S: Timer
+    N: Alarm
+    E: changeMode
+    O: print "Switched to Alarm Mode"
+
+TRANSITION:
+    S: Alarm
+    N: Chrono
+    E: changeMode
+    O: print "Switched to Chrono Mode"
+
+TRANSITION:
+    S: Chrono
+    N: Timer
+    E: changeMode
+    O: print "Switched to Timer Mode"
