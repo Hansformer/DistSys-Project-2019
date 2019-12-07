@@ -16,22 +16,12 @@ INITIALIZER:
 
 # [DS] = default state
 STATECHART:
-    START [DS]
+    Timer [DS] [CS]
+        TimerOn [DS]
 
-    LightOFF
-    LightON
-    LightTimeout
-
-    Timer
-    EditTime
-    EditDone
-
-    Alarm
-    EditAlarm
-
-    Chrono
-    StartChrono
-    IncreaseChrono
+    Chrono [DS] [CS]
+        ChronoOn
+        ChronoOff [DS]
 
 # S = the source state of the transition.
 # N = the destination state of the transition.
@@ -39,90 +29,30 @@ STATECHART:
 # O = a list of commands to be executed as the output of the transition. [DUMP(...)] is a predefined macro that prints a message.
 
 TRANSITION:
-    S: Timer
-    N: LightON
-    E: lightOn
-    O: print "set light on"
-       g.setIndiglo()
-
-TRANSITION:
-    S: LightON
-    N: LightOFF
-    E: lightOff
-    O: print "Timeout for turning light off"
-
-TRANSITION:
-    S: LightOFF
-    N: Timer
-    T: 2
-    O: g.unsetIndiglo()
-       print "Light turned off"
-
-TRANSITION:
-    S: START
-    N: Timer
-    T: 1 [OTT]
-    O: print "BEGIN Timer"
-
-TRANSITION:
-    S: Timer
-    N: Timer
+    S: Timer.TimerOn
+    N: Timer.TimerOn
     T: 1
     O: print "Time Tick"
        g.increaseTimeByOne()
 
 TRANSITION:
-    S: Timer
-    N: EditTime
-    E: editTime
-    O: g.startSelection()
-       print "Start editing time"
-
-TRANSITION:
-    S: EditTime
-    N: EditTime
-    E: changeMode
-    O: g.selectNext()
-       print "Selecting next"
-
-TRANSITION:
-    S: EditTime
-    N: EditTime
-    E: increase
-    O: g.increaseSelection()
-       print "Increased Selection"
-
-# FIXME
-TRANSITION:
-    S: EditTime
-    N: EditDone
-    E: finishEdit
-    O: print "Time saved!"
-
-# FIXME
-TRANSITION:
-    S: EditDone
-    N: Timer
-    O: print "Back to time display"
-       g.refreshTimeDisplay()
-
-
-TRANSITION:
-    S: Timer
-    N: Alarm
-    E: changeMode
-    O: print "Switched to Alarm Mode"
-
-TRANSITION:
-    S: Alarm
-    N: Chrono
+    S: Chrono.ChronoOff
+    N: Chrono.ChronoOn
     E: changeMode
     O: print "Switched to Chrono Mode"
        g.resetChrono()
        g.refreshChronoDisplay() 
 
 TRANSITION:
-    S: Chrono
-    N: Timer
+    S: Chrono.ChronoOn
+    N: Chrono.ChronoOn
+    T: 0.05
+    O:
+       g.refreshChronoDisplay() 
+
+TRANSITION:
+    S: Chrono.ChronoOn
+    N: Chrono.ChronoOff
     E: changeMode
     O: print "Switched to Timer Mode"
+       g.refreshDateDisplay()
