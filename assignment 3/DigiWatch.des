@@ -118,6 +118,8 @@ TRANSITION:
     N: Chrono
     E: changeMode
     O: print "Switched to Chrono Mode"
+       g.resetChrono()
+       g.refreshChronoDisplay() 
 
 TRANSITION:
     S: Chrono
