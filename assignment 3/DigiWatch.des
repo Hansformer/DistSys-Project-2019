@@ -13,6 +13,8 @@ INITIALIZER:
     root.mainloop()
     exit()
 
+
+# [DS] = default state
 STATECHART:
     START [DS]
 
@@ -31,6 +33,10 @@ STATECHART:
     StartChrono
     IncreaseChrono
 
+# S = the source state of the transition.
+# N = the destination state of the transition.
+# E = the event that triggers the transition.
+# O = a list of commands to be executed as the output of the transition. [DUMP(...)] is a predefined macro that prints a message.
 
 TRANSITION:
     S: Timer
