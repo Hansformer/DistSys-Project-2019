@@ -32,6 +32,8 @@ STATECHART:
         ChronoOff [DS]
         ChronoRunningInForeground
         ChronoRunningInBackground
+        PauseChrono
+        ChronoPaused
     
     Light [DS] [CS]
         LightOff [DS]
@@ -87,6 +89,7 @@ TRANSITION:
     O:
        g.refreshChronoDisplay() 
 
+# TODO: refreshDateDisplay should be refreshTimeDisplay. Do we really need to call it or not?
 TRANSITION:
     S: Chrono.ChronoOn
     N: Chrono.ChronoOff
@@ -107,12 +110,40 @@ TRANSITION:
     O:
        g.refreshChronoDisplay() 
 
+# TODO: refreshDateDisplay should be refreshTimeDisplay. Do we really need to call it or not?
 TRANSITION:
     S: Chrono.ChronoRunningInForeground
     N: Chrono.ChronoRunningInBackground
     E: changeMode
     O: print "Switched to Timer Mode"
        g.refreshDateDisplay()
+
+
+TRANSITION:
+    S: Chrono.ChronoRunningInForeground
+    N: Chrono.PauseChrono
+    E: initChrono
+    O: print "Chrono paused"
+
+TRANSITION:
+    S: Chrono.PauseChrono
+    N: Chrono.ChronoRunningInForeground
+    E: initChrono
+    O: print "Chrono resumed"
+
+TRANSITION:
+    S: Chrono.PauseChrono
+    N: Chrono.ChronoPaused
+    E: changeMode
+    O: print "Switched to Timer Mode"
+       g.refreshTimeDisplay()
+
+TRANSITION:
+    S: Chrono.ChronoPaused
+    N: Chrono.PauseChrono
+    E: changeMode
+    O: print "Switched to Chrono Mode (paused)"
+       g.refreshChronoDisplay()
 
 
 TRANSITION:
