@@ -1,6 +1,6 @@
-# To show the debug dialog, replace
+# To show the debug dialog, comment out
 # INITIALIZER:
-# with 
+# and uncomment the following line
 # if __name__=="__main__":
 INITIALIZER:
     from Tkinter import *
