@@ -104,11 +104,11 @@ TRANSITION:
        print "Increased Selection"
 
 # FIXME
-TRANSITION:
-    S: EditTime
-    N: EditDone
-    E: finishEdit
-    O: print "Time saved!"
+#TRANSITION:
+#    S: EditTime
+#    N: EditDone
+#    E: finishEdit
+#    O: print "Time saved!"
 
 # FIXME
 TRANSITION:
