@@ -21,12 +21,14 @@ INITIALIZER:
 
 # [DS] = default state
 STATECHART:
-    Timer [DS] [CS]
-        TimerOn [DS]
-
-    Chrono [DS] [CS]
-        ChronoOn
-        ChronoOff [DS]
+    TimeDisplayMode [DS]
+    ButtonPressed
+        Timeout [DS] [CS]
+            TimeoutStart [DS]
+            TimeoutFinished
+        Decide [DS] [CS]
+            StartDecision [DS]
+            MakeDecision 
 
 # S = the source state of the transition.
 # N = the destination state of the transition.
@@ -34,30 +36,29 @@ STATECHART:
 # O = a list of commands to be executed as the output of the transition. [DUMP(...)] is a predefined macro that prints a message.
 
 TRANSITION:
-    S: Timer.TimerOn
-    N: Timer.TimerOn
-    T: 1
-    O: print "Time Tick"
-       g.increaseTimeByOne()
+    S: TimeDisplayMode
+    N: ButtonPressed
+    E: editTime
+    O: print "TimeDisplayMode->ButtonPressed"
 
 TRANSITION:
-    S: Chrono.ChronoOff
-    N: Chrono.ChronoOn
-    E: changeMode
-    O: print "Switched to Chrono Mode"
-       g.resetChrono()
-       g.refreshChronoDisplay() 
+    S: ButtonPressed.Timeout.TimeoutStart
+    N: ButtonPressed.Timeout.TimeoutFinished
+    T: 2 [OTT]
+    O: print "ButtonPressed.Timeout.TimeoutStart->ButtonPressed.Timeout.TimeoutFinished"
+
+# "Edit time" mode
+TRANSITION:
+    S: ButtonPressed.Decide.StartDecision
+    N: ButtonPressed.Decide.MakeDecision
+    E: released
+    C: [INSTATE("ButtonPressed.Timeout.TimeoutFinished")]
+    O: print "Button pressed for at least 2 seconds, now we're in Edit time mode"
+       g.startSelection()
 
 TRANSITION:
-    S: Chrono.ChronoOn
-    N: Chrono.ChronoOn
-    T: 0.05
-    O:
-       g.refreshChronoDisplay() 
-
-TRANSITION:
-    S: Chrono.ChronoOn
-    N: Chrono.ChronoOff
-    E: changeMode
-    O: print "Switched to Timer Mode"
-       g.refreshDateDisplay()
+    S: ButtonPressed.Decide.StartDecision
+    N: TimeDisplayMode
+    E: released
+    C: [INSTATE("ButtonPressed.Timeout.TimeoutStart")]
+    O: print "Button released too early, going back to TimeDisplayMode"
