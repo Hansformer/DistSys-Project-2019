@@ -21,13 +21,12 @@ INITIALIZER:
 
 # [DS] = default state
 STATECHART:
-    START [DS]
 
     LightOFF
     LightON
     LightTimeout
 
-    Timer
+    Timer [DS]
     EditTime
     EditDone
 
@@ -68,12 +67,6 @@ TRANSITION:
        print "Light turned off"
 
 ### TIME DISPLAY MODE ###
-
-TRANSITION:
-    S: START
-    N: Timer
-    T: 1 [OTT]
-    O: print "BEGIN Timer"
 
 TRANSITION:
     S: Timer
