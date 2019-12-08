@@ -118,7 +118,13 @@ TRANSITION:
     S: Timer
     N: Alarm
     E: setAlarm
-    O: print "Switched to Alarm Mode"
+    O: print "Alarm is on"
+
+TRANSITION:
+    S: Alarm
+    N: Timer
+    E: setAlarm
+    O: print "Alarm is off"
 
 
 ### CHRONO MODE ###
