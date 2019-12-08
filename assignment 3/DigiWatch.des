@@ -31,7 +31,6 @@ STATECHART:
 
     Chrono
     StartChrono
-    IncreaseChrono
 
 # S = the source state of the transition.
 # N = the destination state of the transition.
@@ -128,6 +127,21 @@ TRANSITION:
     E: changeMode
     O: print "Switched to Chrono Mode"
        g.resetChrono()
+       g.refreshChronoDisplay() 
+
+TRANSITION:
+    S: Chrono
+    N: StartChrono
+    E: initChrono
+    O: print "Starting Chrono"
+
+# TODO: Change time to 0.01 for final version
+TRANSITION:
+    S: StartChrono
+    N: StartChrono
+    T: 0.25
+    O: print "Chrono Tick"
+       g.increaseChronoByOne()
        g.refreshChronoDisplay() 
 
 TRANSITION:
