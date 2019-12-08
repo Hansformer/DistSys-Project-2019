@@ -51,6 +51,7 @@ TRANSITION:
     T: 1
     O: print "Time Tick"
        g.increaseTimeByOne()
+       g.refreshTimeDisplay()
 
 # TODO: Change time to 0.01 for final version
 TRANSITION:
