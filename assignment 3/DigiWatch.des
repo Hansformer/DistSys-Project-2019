@@ -77,6 +77,7 @@ TRANSITION:
     O: print "Time Tick"
        g.increaseTimeByOne()
 
+# FIXME: This should fire exactly once
 TRANSITION:
     S: Timer.ChronoTick.ChronoTickOff
     N: Timer.ChronoTick.ChronoTickOn
