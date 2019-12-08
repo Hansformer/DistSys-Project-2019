@@ -114,7 +114,7 @@ TRANSITION:
     O: print "Switched to Alarm Mode"
 
 TRANSITION:
-    S: Alarm
+    S: Timer
     N: Chrono
     E: changeMode
     O: print "Switched to Chrono Mode"
