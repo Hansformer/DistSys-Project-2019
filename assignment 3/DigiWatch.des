@@ -27,6 +27,7 @@ STATECHART:
     Chrono [DS] [CS]
         ChronoOn
         ChronoOff [DS]
+        ChronoRunning
     
     Light [DS] [CS]
         LightOff [DS]
@@ -66,6 +67,22 @@ TRANSITION:
     E: changeMode
     O: print "Switched to Timer Mode"
        g.refreshDateDisplay()
+
+TRANSITION:
+    S: Chrono.ChronoOn
+    N: Chrono.ChronoRunning
+    E: initChrono
+    O: print "Starting Chrono"
+
+# TODO: Change time to 0.01 for final version
+TRANSITION:
+    S: Chrono.ChronoRunning
+    N: Chrono.ChronoRunning
+    T: 0.25
+    O: print "Chrono Tick"
+       g.increaseChronoByOne()
+       g.refreshChronoDisplay() 
+
 
 TRANSITION:
     S: Light.LightOff
