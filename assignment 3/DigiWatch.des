@@ -31,6 +31,8 @@ STATECHART:
 
     Chrono
     StartChrono
+    PauseChrono
+    ResetChrono
 
 # S = the source state of the transition.
 # N = the destination state of the transition.
@@ -143,6 +145,37 @@ TRANSITION:
     O: print "Chrono Tick"
        g.increaseChronoByOne()
        g.refreshChronoDisplay() 
+
+
+TRANSITION:
+    S: StartChrono
+    N: PauseChrono
+    E: initChrono
+    O: print "Chrono paused"
+
+
+TRANSITION:
+    S: PauseChrono
+    N: StartChrono
+    E: initChrono
+    O: print "Chrono resumed"
+
+TRANSITION:
+    S: StartChrono
+    N: Chrono
+    E: resetChrono
+    O: print "Chrono resetted (chrono is running)"
+       g.resetChrono()
+       g.refreshChronoDisplay() 
+
+TRANSITION:
+    S: PauseChrono
+    N: Chrono
+    E: resetChrono
+    O: print "Chrono resetted (chrono is paused)"
+       g.resetChrono()
+       g.refreshChronoDisplay() 
+
 
 TRANSITION:
     S: Chrono
