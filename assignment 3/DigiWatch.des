@@ -27,6 +27,11 @@ STATECHART:
     Chrono [DS] [CS]
         ChronoOn
         ChronoOff [DS]
+    
+    Light [DS] [CS]
+        LightOff [DS]
+        LightOn
+        LightTimeout
 
 # S = the source state of the transition.
 # N = the destination state of the transition.
@@ -61,3 +66,23 @@ TRANSITION:
     E: changeMode
     O: print "Switched to Timer Mode"
        g.refreshDateDisplay()
+
+TRANSITION:
+    S: Light.LightOff
+    N: Light.LightOn
+    E: lightOn
+    O: print "set light on"
+       g.setIndiglo()
+
+TRANSITION:
+    S: Light.LightOn
+    N: Light.LightTimeout
+    E: lightOff
+    O: print "Timeout for turning light off"
+
+TRANSITION:
+    S: Light.LightTimeout
+    N: Light.LightOff
+    T: 2 [OTT]
+    O: g.unsetIndiglo()
+       print "Light turned off"
