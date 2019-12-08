@@ -22,12 +22,16 @@ INITIALIZER:
 # [DS] = default state
 STATECHART:
     Timer [DS] [CS]
-        TimerOn [DS]
+        TimerTick [DS] [CS]
+        ChronoTick [DS] [CS]
+            ChronoTickOn
+            ChronoTickOff [DS]
 
     Chrono [DS] [CS]
         ChronoOn
         ChronoOff [DS]
-        ChronoRunning
+        ChronoRunningInForeground
+        ChronoRunningInBackground
     
     Light [DS] [CS]
         LightOff [DS]
@@ -40,11 +44,27 @@ STATECHART:
 # O = a list of commands to be executed as the output of the transition. [DUMP(...)] is a predefined macro that prints a message.
 
 TRANSITION:
-    S: Timer.TimerOn
-    N: Timer.TimerOn
+    S: Timer.TimerTick
+    N: Timer.TimerTick
     T: 1
     O: print "Time Tick"
        g.increaseTimeByOne()
+
+# TODO: Change time to 0.01 for final version
+TRANSITION:
+    S: Timer.ChronoTick.ChronoTickOff
+    N: Timer.ChronoTick.ChronoTickOn
+    T: 0.25 [OTT]
+    C: [INSTATE("Chrono.ChronoRunningInForeground")] or [INSTATE("Chrono.ChronoRunningInBackground")]
+
+# TODO: Change time to 0.01 for final version
+TRANSITION:
+    S: Timer.ChronoTick.ChronoTickOn
+    N: Timer.ChronoTick.ChronoTickOn
+    C: [INSTATE("Chrono.ChronoRunningInForeground")] or [INSTATE("Chrono.ChronoRunningInBackground")]
+    T: 0.25
+    O: print "Chrono Tick"
+       g.increaseChronoByOne()
 
 TRANSITION:
     S: Chrono.ChronoOff
@@ -53,6 +73,12 @@ TRANSITION:
     O: print "Switched to Chrono Mode"
        g.resetChrono()
        g.refreshChronoDisplay() 
+
+TRANSITION:
+    S: Chrono.ChronoRunningInBackground
+    N: Chrono.ChronoRunningInForeground
+    E: changeMode
+    O: print "Switched to Chrono Mode"
 
 TRANSITION:
     S: Chrono.ChronoOn
@@ -70,18 +96,23 @@ TRANSITION:
 
 TRANSITION:
     S: Chrono.ChronoOn
-    N: Chrono.ChronoRunning
+    N: Chrono.ChronoRunningInForeground
     E: initChrono
     O: print "Starting Chrono"
 
-# TODO: Change time to 0.01 for final version
 TRANSITION:
-    S: Chrono.ChronoRunning
-    N: Chrono.ChronoRunning
-    T: 0.25
-    O: print "Chrono Tick"
-       g.increaseChronoByOne()
+    S: Chrono.ChronoRunningInForeground
+    N: Chrono.ChronoRunningInForeground
+    T: 0.05
+    O:
        g.refreshChronoDisplay() 
+
+TRANSITION:
+    S: Chrono.ChronoRunningInForeground
+    N: Chrono.ChronoRunningInBackground
+    E: changeMode
+    O: print "Switched to Timer Mode"
+       g.refreshDateDisplay()
 
 
 TRANSITION:
