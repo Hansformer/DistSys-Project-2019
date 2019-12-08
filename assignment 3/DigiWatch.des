@@ -38,6 +38,9 @@ STATECHART:
 # E = the event that triggers the transition.
 # O = a list of commands to be executed as the output of the transition. [DUMP(...)] is a predefined macro that prints a message.
 
+
+### LIGHT FUNCTIONALITY ###
+
 TRANSITION:
     S: Timer
     N: LightON
@@ -57,6 +60,8 @@ TRANSITION:
     T: 2
     O: g.unsetIndiglo()
        print "Light turned off"
+
+### TIME DISPLAY MODE ###
 
 TRANSITION:
     S: START
@@ -106,12 +111,16 @@ TRANSITION:
     O: print "Back to time display"
        g.refreshTimeDisplay()
 
+### ALARM MODE ###
 
 TRANSITION:
     S: Timer
     N: Alarm
     E: setAlarm
     O: print "Switched to Alarm Mode"
+
+
+### CHRONO MODE ###
 
 TRANSITION:
     S: Timer
