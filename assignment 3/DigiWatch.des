@@ -110,7 +110,7 @@ TRANSITION:
 TRANSITION:
     S: Timer
     N: Alarm
-    E: changeMode
+    E: setAlarm
     O: print "Switched to Alarm Mode"
 
 TRANSITION:
