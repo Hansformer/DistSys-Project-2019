@@ -1,12 +1,17 @@
+# To show the debug dialog, replace
+# INITIALIZER:
+# with 
+# if __name__=="__main__":
 INITIALIZER:
-    import time
     from Tkinter import *
     from DWatchGUI import DWatchGUI
-    from LowLevelGUI import LowLevelGUI
 
     root = Tk()
-    root.title("Digital Watch")
-    g = DWatchGUI(root, eventhandler)
+    root.withdraw()
+    topLevel = Toplevel(root)
+    topLevel.resizable(width="NO", height="NO")
+    topLevel.title("DWatch")
+    g = DWatchGUI(topLevel, eventhandler)
 
     eventhandler.start()
 
