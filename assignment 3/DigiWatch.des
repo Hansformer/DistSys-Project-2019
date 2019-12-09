@@ -25,6 +25,12 @@ STATECHART:
         TimerView [DS]
             ShowTime [DS]
             EditTime
+                Timeout [DS] [CS]
+                    TimeoutStart [DS]
+                    TimeoutFinished
+                Decide [DS] [CS]
+                    StartDecision [DS]
+                    MakeDecision 
             Alarm
         ChronoView
             ChronoInit [DS]
@@ -59,8 +65,30 @@ TRANSITION:
     S: View.TimerView.ShowTime
     N: View.TimerView.EditTime
     E: editTime
-    O: g.startSelection()
-       print "Start editing time"
+    O: print "edittime"
+
+# FIXME
+TRANSITION:
+    S: View.TimerView.EditTime.Timeout.TimeoutStart
+    N: View.TimerView.EditTime.Timeout.TimeoutFinished
+    T: 2 [OTT]
+    O: print "timeout finished"
+
+# "Edit time" mode
+TRANSITION:
+    S: View.TimerView.EditTime.Decide.StartDecision
+    N: View.TimerView.EditTime.Decide.MakeDecision
+    E: released
+    C: [INSTATE("View.TimerView.EditTime.Timeout.TimeoutFinished")]
+    O: print "Button pressed for at least 2 seconds, now we're in Edit time mode"
+       g.startSelection()
+
+TRANSITION:
+    S: View.TimerView.EditTime.Decide.StartDecision
+    N: View.TimerView.ShowTime
+    E: released
+    C: [INSTATE("View.TimerView.EditTime.Timeout.TimeoutStart")]
+    O: print "Button released too early, going back to TimeDisplayMode"
 
 TRANSITION:
     S: View.TimerView.EditTime
