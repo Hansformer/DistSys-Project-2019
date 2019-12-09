@@ -29,6 +29,7 @@ STATECHART:
 
     Timer [DS] [CS]
         TimerTick [DS] [CS]
+            Tick [DS]
         ChronoTick [DS] [CS]
             ChronoTickOn
             ChronoTickOff [DS]
@@ -71,18 +72,17 @@ TRANSITION:
 
 
 TRANSITION:
-    S: Timer.TimerTick
-    N: Timer.TimerTick
+    S: Timer.TimerTick.Tick
+    N: Timer.TimerTick.Tick
     T: 1
     O: print "Time Tick"
        g.increaseTimeByOne()
 
-# FIXME: This should fire exactly once
+# FIXME: C: [INSTATE("View.ChronoView.ChronoRunning")]
 TRANSITION:
     S: Timer.ChronoTick.ChronoTickOff
     N: Timer.ChronoTick.ChronoTickOn
-    T: 0 [OTT]
-    C: [INSTATE("View.ChronoView.ChronoRunning")]
+    T: 1 [OTT]
     O: print "Timer.ChronoTick.ChronoTickOff->Timer.ChronoTick.ChronoTickOn"
 
 TRANSITION:
@@ -90,6 +90,7 @@ TRANSITION:
     N: View.ChronoView.ChronoRunning
     T: 0.25
     O: g.refreshChronoDisplay()
+       print "View.ChronoView.ChronoRunning"
 
 TRANSITION:
     S: View.ChronoView.ChronoRunning
