@@ -77,6 +77,16 @@ TRANSITION:
     O: print "Time Tick"
        g.increaseTimeByOne()
 
+TRANSITION:
+    S: ChronoTick.ChronoTickOff
+    N: ChronoTick.ChronoTickOn
+    E: initChrono
+    
+TRANSITION:
+    S: ChronoTick.ChronoTickOn
+    N: ChronoTick.ChronoTickOff
+    E: initChrono
+
 # TODO: Change time to 0.01 for final version
 TRANSITION:
     S: ChronoTick.ChronoTickOn
@@ -84,6 +94,13 @@ TRANSITION:
     T: 0.25
     O: print "Chrono Tick"
        g.increaseChronoByOne()
+
+TRANSITION:
+    S: ChronoTick.ChronoTickOff
+    N: ChronoTick.ChronoTickOff
+    E: resetChrono
+    O: g.resetChrono()
+
 
 TRANSITION:
     S: Light.LightOff
@@ -104,8 +121,3 @@ TRANSITION:
     T: 2 [OTT]
     O: g.unsetIndiglo()
        print "Light turned off"
-
-TRANSITION:
-    S: ChronoTick.ChronoTickOff
-    N: ChronoTick.ChronoTickOn
-    E: initChrono
