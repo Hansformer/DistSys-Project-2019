@@ -23,6 +23,9 @@ INITIALIZER:
 STATECHART:
     View [DS] [CS]
         TimerView [DS]
+            ShowTime [DS]
+            EditTime
+            Alarm
         ChronoView
             ChronoInit [DS]
             ChronoRunning
@@ -51,6 +54,55 @@ TRANSITION:
     T: 1
     O:
        g.refreshTimeDisplay()
+
+TRANSITION:
+    S: View.TimerView.ShowTime
+    N: View.TimerView.EditTime
+    E: editTime
+    O: g.startSelection()
+       print "Start editing time"
+
+TRANSITION:
+    S: View.TimerView.EditTime
+    N: View.TimerView.EditTime
+    E: changeMode
+    O: g.selectNext()
+       print "Selecting next"
+
+TRANSITION:
+    S: View.TimerView.EditTime
+    N: View.TimerView.EditTime
+    E: increase
+    O: g.increaseSelection()
+       print "Increased Selection"
+
+# FIXME
+#TRANSITION:
+#    S: EditTime
+#    N: EditDone
+#    E: finishEdit
+#    O: print "Time saved!"
+
+# FIXME
+#TRANSITION:
+#    S: EditDone
+#    N: Timer
+#    O: print "Back to time display"
+#       g.refreshTimeDisplay()
+
+TRANSITION:
+    S: View.TimerView.ShowTime
+    N: View.TimerView.Alarm
+    E: setAlarm
+    O: print "Alarm is on"
+
+# FIXME
+TRANSITION:
+    S: View.TimerView.Alarm
+    N: View.TimerView.ShowTime
+    E: setAlarm
+    O: print "Alarm is off"
+
 
 TRANSITION:
     S: View.TimerView
@@ -92,7 +144,7 @@ TRANSITION:
     S: Timer.ChronoTick.ChronoTickOff
     N: Timer.ChronoTick.ChronoTickOn
     C: [INSTATE("View.ChronoView.ChronoRunning")]
-    T: 1
+    T: 1 
     O: print "Timer.ChronoTick.ChronoTickOff->Timer.ChronoTick.ChronoTickOn"
 
 # FIXME
@@ -100,7 +152,6 @@ TRANSITION:
     S: Timer.ChronoTick.ChronoTickOn
     N: Timer.ChronoTick.ChronoTickOff
     C: [INSTATE("View.ChronoView.ChronoPaused")]
-    T: 1
     O: print "Chrono paused"
 
 
@@ -110,6 +161,22 @@ TRANSITION:
     T: 0.25
     O: g.refreshChronoDisplay()
        print "View.ChronoView.ChronoRunning"
+
+TRANSITION:
+    S: View.ChronoView.ChronoRunning
+    N: View.ChronoView.ChronoRunning
+    E: resetChrono
+    O: g.resetChrono()
+       print "Chrono reset"
+
+
+# FIXME
+TRANSITION:
+    S: View.ChronoView.ChronoPaused
+    N: View.ChronoView.ChronoPaused
+    E: resetChrono
+    O: g.resetChrono()
+       print "Chrono reset"
 
 TRANSITION:
     S: View.ChronoView.ChronoRunning
