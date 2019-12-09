@@ -39,6 +39,10 @@ STATECHART:
         ChronoTickOn
         ChronoTickOff [DS]
 
+    Alarm [DS] [CS]
+        AlarmEnabled
+        AlarmDisabled [DS]
+
     Light [DS] [CS]
         LightOff [DS]
         LightOn
@@ -173,6 +177,20 @@ TRANSITION:
     E: resetChrono
     O: g.resetChrono()
 
+
+TRANSITION:
+    S: Alarm.AlarmEnabled
+    N: Alarm.AlarmDisabled
+    E: setAlarm
+    O: g.setAlarm()
+       print "Alarm disabled"
+
+TRANSITION:
+    S: Alarm.AlarmDisabled
+    N: Alarm.AlarmEnabled
+    E: setAlarm
+    O: g.setAlarm()
+       print "Alarm enabled"
 
 TRANSITION:
     S: Light.LightOff
