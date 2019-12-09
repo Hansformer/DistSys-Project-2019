@@ -26,6 +26,7 @@ STATECHART:
         ChronoView
             ChronoInit [DS]
             ChronoRunning
+            ChronoPaused
 
     Timer [DS] [CS]
         TimerTick [DS] [CS]
@@ -54,6 +55,7 @@ TRANSITION:
 TRANSITION:
     S: View.TimerView
     N: View.ChronoView
+    C: [INSTATE("Timer.ChronoTick.ChronoTickOff")]
     E: changeMode
     O: print "Switched to Chrono View"
        g.refreshChronoDisplay()
@@ -70,6 +72,14 @@ TRANSITION:
     E: initChrono
     O: print "Starting Chrono"
 
+TRANSITION:
+    S: View.TimerView
+    N: View.ChronoView.ChronoRunning
+    C: [INSTATE("Timer.ChronoTick.ChronoTickOn")]
+    E: changeMode
+    O: print "Switched to Chrono View (running)"
+       g.refreshChronoDisplay()
+
 
 TRANSITION:
     S: Timer.TimerTick.Tick
@@ -78,12 +88,21 @@ TRANSITION:
     O: print "Time Tick"
        g.increaseTimeByOne()
 
-# FIXME: C: [INSTATE("View.ChronoView.ChronoRunning")]
 TRANSITION:
     S: Timer.ChronoTick.ChronoTickOff
     N: Timer.ChronoTick.ChronoTickOn
-    T: 1 [OTT]
+    C: [INSTATE("View.ChronoView.ChronoRunning")]
+    T: 1
     O: print "Timer.ChronoTick.ChronoTickOff->Timer.ChronoTick.ChronoTickOn"
+
+# FIXME
+TRANSITION:
+    S: Timer.ChronoTick.ChronoTickOn
+    N: Timer.ChronoTick.ChronoTickOff
+    C: [INSTATE("View.ChronoView.ChronoPaused")]
+    T: 1
+    O: print "Chrono paused"
+
 
 TRANSITION:
     S: View.ChronoView.ChronoRunning
@@ -91,6 +110,16 @@ TRANSITION:
     T: 0.25
     O: g.refreshChronoDisplay()
        print "View.ChronoView.ChronoRunning"
+
+TRANSITION:
+    S: View.ChronoView.ChronoRunning
+    N: View.ChronoView.ChronoPaused
+    E: initChrono
+
+TRANSITION:
+    S: View.ChronoView.ChronoPaused
+    N: View.ChronoView.ChronoRunning
+    E: initChrono
 
 TRANSITION:
     S: View.ChronoView.ChronoRunning
