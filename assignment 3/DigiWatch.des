@@ -24,9 +24,17 @@ STATECHART:
     View [DS] [CS]
         TimerView [DS]
         ChronoView
+        RefreshDisabled
 
     Timer [DS] [CS]
         Tick [DS]
+
+    EditTime [CS] [DS]
+        EditTimeDisabled [DS]
+        EditTimeDisabledTimeout
+        EditTimeEnabled
+        EditTimeEnabledTimeout
+
     ChronoTick [DS] [CS]
         ChronoTickOn
         ChronoTickOff [DS]
@@ -76,6 +84,70 @@ TRANSITION:
     T: 1
     O: print "Time Tick"
        g.increaseTimeByOne()
+
+
+
+TRANSITION:
+    S: View.TimerView
+    N: View.RefreshDisabled
+    E: editTimeEvent
+
+TRANSITION:
+    S: View.RefreshDisabled
+    N: View.TimerView
+    E: editTimeEvent
+    O: g.stopSelection()
+
+
+TRANSITION:
+    S: EditTime.EditTimeDisabled
+    N: EditTime.EditTimeEnabledTimeout
+    C: [INSTATE("View.TimerView")]
+    E: editTime
+
+TRANSITION:
+    S: EditTime.EditTimeEnabledTimeout
+    N: EditTime.EditTimeEnabled
+    T: 1.5
+    O: [EVENT("editTimeEvent")]
+       g.startSelection()
+       print "Time edit mode enabled"
+
+TRANSITION:
+    S: EditTime.EditTimeEnabledTimeout
+    N: EditTime.EditTimeDisabled
+    C: [INSTATE("View.TimerView")]
+    E: released
+
+TRANSITION:
+    S: EditTime.EditTimeEnabled
+    N: EditTime.EditTimeEnabled
+    E: initChrono
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditTime.EditTimeEnabled
+    N: EditTime.EditTimeEnabled
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditTime.EditTimeEnabled
+    N: EditTime.EditTimeDisabledTimeout
+    C: [INSTATE("View.RefreshDisabled")]
+    E: editTime
+
+TRANSITION:
+    S: EditTime.EditTimeDisabledTimeout
+    N: EditTime.EditTimeDisabled
+    T: 2
+    O: [EVENT("editTimeEvent")]
+
+TRANSITION:
+    S: EditTime.EditTimeDisabledTimeout
+    N: EditTime.EditTimeEnabled
+    C: [INSTATE("View.RefreshDisabled")]
+    E: released
 
 TRANSITION:
     S: ChronoTick.ChronoTickOff
