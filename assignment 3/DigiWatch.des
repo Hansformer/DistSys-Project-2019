@@ -181,6 +181,7 @@ TRANSITION:
 TRANSITION:
     S: Alarm.AlarmEnabled
     N: Alarm.AlarmDisabled
+    C: [INSTATE("View.TimerView")]
     E: setAlarm
     O: g.setAlarm()
        print "Alarm disabled"
@@ -188,6 +189,7 @@ TRANSITION:
 TRANSITION:
     S: Alarm.AlarmDisabled
     N: Alarm.AlarmEnabled
+    C: [INSTATE("View.TimerView")]
     E: setAlarm
     O: g.setAlarm()
        print "Alarm enabled"
