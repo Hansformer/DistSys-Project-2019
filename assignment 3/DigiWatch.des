@@ -21,22 +21,32 @@ INITIALIZER:
 
 # [DS] = default state
 STATECHART:
+    View [DS] [CS]
+        TimerView [DS]
+        ChronoView
+        RefreshDisabled
 
-    LightOFF
-    LightON
-    LightTimeout
+    Timer [DS] [CS]
+        Tick [DS]
 
-    Timer [DS]
-    EditTime
-    EditDone
+    EditTime [CS] [DS]
+        EditTimeDisabled [DS]
+        EditTimeDisabledTimeout
+        EditTimeEnabled
+        EditTimeEnabledTimeout
 
-    Alarm
-    EditAlarm
+    ChronoTick [DS] [CS]
+        ChronoTickOn
+        ChronoTickOff [DS]
 
-    Chrono
-    StartChrono
-    PauseChrono
-    ResetChrono
+    Alarm [DS] [CS]
+        AlarmEnabled
+        AlarmDisabled [DS]
+
+    Light [DS] [CS]
+        LightOff [DS]
+        LightOn
+        LightTimeout
 
 # S = the source state of the transition.
 # N = the destination state of the transition.
@@ -44,145 +54,163 @@ STATECHART:
 # O = a list of commands to be executed as the output of the transition. [DUMP(...)] is a predefined macro that prints a message.
 
 
-### LIGHT FUNCTIONALITY ###
+TRANSITION:
+    S: View.TimerView
+    N: View.TimerView
+    T: 1
+    O:
+       g.refreshTimeDisplay()
+
+# TODO: Change time to 0.01 for final version
+TRANSITION:
+    S: View.ChronoView
+    N: View.ChronoView
+    T: 0.25
+    O:
+       g.refreshChronoDisplay()
 
 TRANSITION:
-    S: Timer
-    N: LightON
+    S: View.TimerView
+    N: View.ChronoView
+    E: changeMode
+    O:
+       g.refreshChronoDisplay()
+
+TRANSITION:
+    S: View.ChronoView
+    N: View.TimerView
+    E: changeMode
+    O:
+       g.refreshTimeDisplay()
+
+TRANSITION:
+    S: Timer.Tick
+    N: Timer.Tick
+    T: 1
+    O: print "Time Tick"
+       g.increaseTimeByOne()
+
+
+
+TRANSITION:
+    S: View.TimerView
+    N: View.RefreshDisabled
+    E: editTimeEvent
+
+TRANSITION:
+    S: View.RefreshDisabled
+    N: View.TimerView
+    E: editTimeEvent
+    O: g.stopSelection()
+
+
+TRANSITION:
+    S: EditTime.EditTimeDisabled
+    N: EditTime.EditTimeEnabledTimeout
+    C: [INSTATE("View.TimerView")]
+    E: editTime
+
+TRANSITION:
+    S: EditTime.EditTimeEnabledTimeout
+    N: EditTime.EditTimeEnabled
+    T: 1.5
+    O: [EVENT("editTimeEvent")]
+       g.startSelection()
+       print "Time edit mode enabled"
+
+TRANSITION:
+    S: EditTime.EditTimeEnabledTimeout
+    N: EditTime.EditTimeDisabled
+    C: [INSTATE("View.TimerView")]
+    E: released
+
+TRANSITION:
+    S: EditTime.EditTimeEnabled
+    N: EditTime.EditTimeEnabled
+    E: initChrono
+    O: g.selectNext()
+
+TRANSITION:
+    S: EditTime.EditTimeEnabled
+    N: EditTime.EditTimeEnabled
+    E: increase
+    O: g.increaseSelection()
+
+TRANSITION:
+    S: EditTime.EditTimeEnabled
+    N: EditTime.EditTimeDisabledTimeout
+    C: [INSTATE("View.RefreshDisabled")]
+    E: editTime
+
+TRANSITION:
+    S: EditTime.EditTimeDisabledTimeout
+    N: EditTime.EditTimeDisabled
+    T: 2
+    O: [EVENT("editTimeEvent")]
+
+TRANSITION:
+    S: EditTime.EditTimeDisabledTimeout
+    N: EditTime.EditTimeEnabled
+    C: [INSTATE("View.RefreshDisabled")]
+    E: released
+
+TRANSITION:
+    S: ChronoTick.ChronoTickOff
+    N: ChronoTick.ChronoTickOn
+    E: initChrono
+    
+TRANSITION:
+    S: ChronoTick.ChronoTickOn
+    N: ChronoTick.ChronoTickOff
+    E: initChrono
+
+# TODO: Change time to 0.01 for final version
+TRANSITION:
+    S: ChronoTick.ChronoTickOn
+    N: ChronoTick.ChronoTickOn
+    T: 0.25
+    O: print "Chrono Tick"
+       g.increaseChronoByOne()
+
+TRANSITION:
+    S: ChronoTick.ChronoTickOff
+    N: ChronoTick.ChronoTickOff
+    E: resetChrono
+    O: g.resetChrono()
+
+
+TRANSITION:
+    S: Alarm.AlarmEnabled
+    N: Alarm.AlarmDisabled
+    C: [INSTATE("View.TimerView")]
+    E: setAlarm
+    O: g.setAlarm()
+       print "Alarm disabled"
+
+TRANSITION:
+    S: Alarm.AlarmDisabled
+    N: Alarm.AlarmEnabled
+    C: [INSTATE("View.TimerView")]
+    E: setAlarm
+    O: g.setAlarm()
+       print "Alarm enabled"
+
+TRANSITION:
+    S: Light.LightOff
+    N: Light.LightOn
     E: lightOn
     O: print "set light on"
        g.setIndiglo()
 
 TRANSITION:
-    S: LightON
-    N: LightOFF
+    S: Light.LightOn
+    N: Light.LightTimeout
     E: lightOff
     O: print "Timeout for turning light off"
 
 TRANSITION:
-    S: LightOFF
-    N: Timer
-    T: 2
+    S: Light.LightTimeout
+    N: Light.LightOff
+    T: 2 [OTT]
     O: g.unsetIndiglo()
        print "Light turned off"
-
-### TIME DISPLAY MODE ###
-
-TRANSITION:
-    S: Timer
-    N: Timer
-    T: 1
-    O: print "Time Tick"
-       g.increaseTimeByOne()
-
-TRANSITION:
-    S: Timer
-    N: EditTime
-    E: editTime
-    O: g.startSelection()
-       print "Start editing time"
-
-TRANSITION:
-    S: EditTime
-    N: EditTime
-    E: changeMode
-    O: g.selectNext()
-       print "Selecting next"
-
-TRANSITION:
-    S: EditTime
-    N: EditTime
-    E: increase
-    O: g.increaseSelection()
-       print "Increased Selection"
-
-# FIXME
-#TRANSITION:
-#    S: EditTime
-#    N: EditDone
-#    E: finishEdit
-#    O: print "Time saved!"
-
-# FIXME
-TRANSITION:
-    S: EditDone
-    N: Timer
-    O: print "Back to time display"
-       g.refreshTimeDisplay()
-
-### ALARM MODE ###
-
-TRANSITION:
-    S: Timer
-    N: Alarm
-    E: setAlarm
-    O: print "Alarm is on"
-
-TRANSITION:
-    S: Alarm
-    N: Timer
-    E: setAlarm
-    O: print "Alarm is off"
-
-
-### CHRONO MODE ###
-
-TRANSITION:
-    S: Timer
-    N: Chrono
-    E: changeMode
-    O: print "Switched to Chrono Mode"
-       g.resetChrono()
-       g.refreshChronoDisplay() 
-
-TRANSITION:
-    S: Chrono
-    N: StartChrono
-    E: initChrono
-    O: print "Starting Chrono"
-
-# TODO: Change time to 0.01 for final version
-TRANSITION:
-    S: StartChrono
-    N: StartChrono
-    T: 0.25
-    O: print "Chrono Tick"
-       g.increaseChronoByOne()
-       g.refreshChronoDisplay() 
-
-
-TRANSITION:
-    S: StartChrono
-    N: PauseChrono
-    E: initChrono
-    O: print "Chrono paused"
-
-
-TRANSITION:
-    S: PauseChrono
-    N: StartChrono
-    E: initChrono
-    O: print "Chrono resumed"
-
-TRANSITION:
-    S: StartChrono
-    N: Chrono
-    E: resetChrono
-    O: print "Chrono resetted (chrono is running)"
-       g.resetChrono()
-       g.refreshChronoDisplay() 
-
-TRANSITION:
-    S: PauseChrono
-    N: Chrono
-    E: resetChrono
-    O: print "Chrono resetted (chrono is paused)"
-       g.resetChrono()
-       g.refreshChronoDisplay() 
-
-
-TRANSITION:
-    S: Chrono
-    N: Timer
-    E: changeMode
-    O: print "Switched to Timer Mode"
